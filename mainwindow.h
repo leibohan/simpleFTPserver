@@ -55,6 +55,7 @@
 
 #include <QMainWindow>
 #include <QModelIndex>
+#include <string>
 
 class MainWindow : public QMainWindow, private Ui::MainWindow
 {
@@ -67,11 +68,26 @@ public slots:
     void updateActions();
 
 private slots:
+    void init();
     void insertChild();
     bool insertColumn();
     void insertRow();
     bool removeColumn();
     void removeRow();
+    void updateConsole();
+    void check();
+    void upload();
+    void download();
+    void updateLocal();
+    void log();
+
+    void on_btnUp_clicked();
+
+private:
+    char * new_content = (char *)malloc(666);
+    char * console_info = (char*)malloc(8888);
+    char * console_init = console_info;
+    bool login = false;
 };
 
 #endif // MAINWINDOW_H

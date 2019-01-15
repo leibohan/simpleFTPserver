@@ -50,8 +50,11 @@
 
 #include "mainwindow.h"
 #include "treemodel.h"
+#include <iostream>
 
 #include <QFile>
+#include <QDir>
+#include <QFileSystemModel>
 
 #define targ "/Users/LeiBohan/Qt/Examples/Qt-5.12.0/widgets/itemviews/editabletreemodel/"
 #define folder "/Users/LeiBohan/Qt/Examples/Qt-5.12.0/widgets/itemviews/editabletreemodel/"
@@ -60,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setupUi(this);
+
+    init();
 
     QStringList headers_local;
     headers_local << tr("Title") << tr("Description");
@@ -76,32 +81,119 @@ MainWindow::MainWindow(QWidget *parent)
     TreeModel *model_server = new TreeModel(headers_local, file_server.readAll());
     file_server.close();
 
-    textConsole->setText("console content");
-
+    /*
     char * order = nullptr;
     sprintf(order, "ls -l %s > %stest.txt", folder, targ);
     system(order);
-
+    */
+    /*
     view->setModel(model_local);
     for (int column = 0; column < model_local->columnCount(); ++column)
         view->resizeColumnToContents(column);
+
     view_2->setModel(model_server);
     for (int column = 0; column < model_server->columnCount(); ++column)
         view_2->resizeColumnToContents(column);
-
+    */
     connect(exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
     connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::updateActions);
-
+    /*
     connect(actionsMenu, &QMenu::aboutToShow, this, &MainWindow::updateActions);
     connect(insertRowAction, &QAction::triggered, this, &MainWindow::insertRow);
     connect(insertColumnAction, &QAction::triggered, this, &MainWindow::insertColumn);
     connect(removeRowAction, &QAction::triggered, this, &MainWindow::removeRow);
     connect(removeColumnAction, &QAction::triggered, this, &MainWindow::removeColumn);
     connect(insertChildAction, &QAction::triggered, this, &MainWindow::insertChild);
+    */
+    connect(insertChildAction, &QAction::triggered, this, &MainWindow::insertChild);
 
     updateActions();
+}
+
+void MainWindow::init()
+{
+    sprintf(console_info, "Welcome to FTP server");
+    *new_content = '\0';
+    updateConsole();
+
+    dir_input->setText("/Users/Leibohan/aa/FTPlocal");
+
+    updateLocal();
+}
+
+void MainWindow::updateLocal(){
+    dir_input->contentsMargins();
+
+    QFileSystemModel *model = new QFileSystemModel();
+    model->setRootPath(dir_input->text());
+
+    QStringList nameFilter;
+    nameFilter << "*";
+    model->setNameFilterDisables(false);
+    model->setNameFilters(nameFilter);
+    view->setModel(model);
+    view->setRootIndex(model->index(dir_input->text()));
+
+    //QDir workspace;
+    //workspace.setPath(dir_input->text());
+    //workspace.Dirs;
+    //workspace.setNameFilters();
+}
+
+void MainWindow::check()
+{
+    updateLocal();
+}
+
+void MainWindow::upload() {
+    QModelIndex present = view->currentIndex();
+    QModelIndex selected = present.sibling(present.row(),0);
+    QString filename(view->model()->itemData(selected).values()[0].toString());
+    filename = dir_input->text() + filename;
+    std::cout << filename;
+}
+
+void MainWindow::log()
+{
+    QString username = name_input->text();
+    QString pw = pw_input->text();
+    QString ip = ip_input->text();
+    //以下请后端加入登录代码
+    /* 请完成 */
+    /*
+    if (login)
+    else
+    */
+}
+
+void MainWindow::updateConsole()
+{
+
+    //execute: {sprintf(new_content, "%s", __input_content__);} before this function
+
+    sprintf(console_info, "%s%s\n", console_info, new_content);
+
+    /*
+    int lines = 0, count = 0, word = 0;
+    for (char * ptr_a = new_content;*ptr_a != '\0';ptr_a ++) {
+        if (*ptr_a == '\n') lines ++, count = word = 0;
+        else if (*console_info == ' ') count += ++word, word = 0;
+        else if (count>=50) lines ++, count = 0;
+        else count++;
+    }
+    while (console_info ++ && !lines) {
+        if (*console_info == '\n') lines --, count = word = 0;
+        else if (*console_info == ' ') count += ++word, word = 0;
+        else if (count + word>=50) lines --, count = 0;
+        else count++;
+    }
+    sprintf(console_init, "%s", console_info);
+    console_info = console_init;
+    */
+    textConsole->setText(console_info);
+
 }
 
 void MainWindow::insertChild()
@@ -202,4 +294,9 @@ void MainWindow::updateActions()
         else
             statusBar()->showMessage(tr("Position: (%1,%2) in top level").arg(row).arg(column));
     }
+}
+
+void MainWindow::on_btnUp_clicked()
+{
+    upload();
 }

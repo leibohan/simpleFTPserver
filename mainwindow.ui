@@ -37,7 +37,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QTreeView" name="view_2">
+           <widget class="QTreeView" name="view">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -71,7 +71,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTreeView" name="view">
+           <widget class="QTreeView" name="view2">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -150,17 +150,11 @@
                </widget>
               </item>
               <item>
-               <widget class="QTextEdit" name="ip_input">
-                <property name="minimumSize">
-                 <size>
-                  <width>400</width>
-                  <height>20</height>
-                 </size>
-                </property>
+               <widget class="QLineEdit" name="ip_input">
                 <property name="maximumSize">
                  <size>
-                  <width>400</width>
-                  <height>20</height>
+                  <width>320</width>
+                  <height>16777215</height>
                  </size>
                 </property>
                </widget>
@@ -183,17 +177,11 @@
                </widget>
               </item>
               <item>
-               <widget class="QTextEdit" name="user_input">
-                <property name="minimumSize">
-                 <size>
-                  <width>400</width>
-                  <height>20</height>
-                 </size>
-                </property>
+               <widget class="QLineEdit" name="name_input">
                 <property name="maximumSize">
                  <size>
-                  <width>400</width>
-                  <height>20</height>
+                  <width>320</width>
+                  <height>16777215</height>
                  </size>
                 </property>
                </widget>
@@ -216,17 +204,32 @@
                </widget>
               </item>
               <item>
-               <widget class="QTextEdit" name="pw_input">
-                <property name="minimumSize">
-                 <size>
-                  <width>400</width>
-                  <height>20</height>
-                 </size>
-                </property>
+               <widget class="QLineEdit" name="pw_input">
                 <property name="maximumSize">
                  <size>
-                  <width>400</width>
-                  <height>20</height>
+                  <width>320</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Workspace</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="dir_input">
+                <property name="maximumSize">
+                 <size>
+                  <width>320</width>
+                  <height>16777215</height>
                  </size>
                 </property>
                </widget>
@@ -286,6 +289,12 @@
                   <width>100</width>
                   <height>16777215</height>
                  </size>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="mouseTracking">
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Update</string>
