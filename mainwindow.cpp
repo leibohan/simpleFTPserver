@@ -55,6 +55,7 @@
 #include <QFile>
 #include <QDir>
 #include <QFileSystemModel>
+#include <QMessageBox>
 
 #define targ "/Users/LeiBohan/Qt/Examples/Qt-5.12.0/widgets/itemviews/editabletreemodel/"
 #define folder "/Users/LeiBohan/Qt/Examples/Qt-5.12.0/widgets/itemviews/editabletreemodel/"
@@ -118,7 +119,7 @@ void MainWindow::init()
     *new_content = '\0';
     updateConsole();
 
-    dir_input->setText("/Users/Leibohan/aa/FTPlocal");
+    dir_input->setText("/Users/Leibohan/FTPlocal");
 
     updateLocal();
 }
@@ -145,14 +146,59 @@ void MainWindow::updateLocal(){
 void MainWindow::check()
 {
     updateLocal();
+    if (view->currentIndex().isValid()) view->clearSelection();
+    QModelIndex present = view2->currentIndex();
+    if (!present.isValid()) return;
+    QModelIndex selected = present.sibling(present.row(),0);
+    QString foldername(view2->model()->itemData(selected).values()[0].toString());
+    QModelIndex selected2 = present.sibling(present.row(),2);
+    QString type(view2->model()->itemData(selected2).values()[0].toString());
+    if (type != "Folder") {
+        view2->clearSelection();
+        return;
+    }
+    /* 请完成 */
+    //please implement a function that access to the folder named {foldername}
+    view2->clearSelection();
+    std::cout<<"updated";
+    std::cout.flush();
 }
 
 void MainWindow::upload() {
-    QModelIndex present = view->currentIndex();
+    if (!view->currentIndex().isValid()) {
+        //local upload source file not chosen.
+        QMessageBox::critical(0, "fatal", "local upload source file not chosen.");
+        return;
+    }
+    QString filename = ((QFileSystemModel)view->model()).filePath(view->currentIndex());
+    /* 请完成 */
+    //filename is the absolute address for the selected file.
+    //we do not know the present ftp server address while it is our target.
+    std::cout << filename.toStdString();
+    std::cout.flush();
+}
+
+void MainWindow::download() {
+    QModelIndex present = view2->currentIndex();
+    if (!present.isValid()) {
+        //server download source not chosen.
+        QMessageBox::critical(0, "fatal", "server download source not chosen.");
+        return;
+    }
     QModelIndex selected = present.sibling(present.row(),0);
-    QString filename(view->model()->itemData(selected).values()[0].toString());
-    filename = dir_input->text() + filename;
-    std::cout << filename;
+    QString filename(view2->model()->itemData(selected).values()[0].toString());
+    QModelIndex present_ = view2->currentIndex();
+    QModelIndex selected__ = present_.sibling(present_.row(),2);
+    QString filename__(view2->model()->itemData(selected__).values()[0].toString());
+    QString tar = dir_input->text();
+
+
+    //use selected folder as the target saving address when it is a folder being selected only.
+    if (filename__ == "Folder") tar = ((QFileSystemModel)view->model()).filePath(view->currentIndex());
+    /* 请完成 */
+    //filename is the name of the file going to be downloaded; tar is the target address; we do not know current ftp server address.
+    std::cout << filename.toStdString();
+    std::cout.flush();
 }
 
 void MainWindow::log()
@@ -163,9 +209,15 @@ void MainWindow::log()
     //以下请后端加入登录代码
     /* 请完成 */
     /*
-    if (login)
-    else
+    if (login) 执行登入;
+    else 执行登出;
+    login = ~login;
     */
+    if (login)
+        std::cout<<"log in";
+    else
+        std::cout<<"log out";
+    std::cout.flush();
 }
 
 void MainWindow::updateConsole()
@@ -296,7 +348,24 @@ void MainWindow::updateActions()
     }
 }
 
-void MainWindow::on_btnUp_clicked()
+void MainWindow::on_btnUp_released()
 {
+    if (view->selectionBehavior())
     upload();
+}
+
+
+void MainWindow::on_btnDown_released()
+{
+    download();
+}
+
+void MainWindow::on_btnCheck_released()
+{
+    check();
+}
+
+void MainWindow::on_btnLog_released()
+{
+    log();
 }

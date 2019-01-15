@@ -81,7 +81,13 @@ private slots:
     void updateLocal();
     void log();
 
-    void on_btnUp_clicked();
+    void on_btnUp_released();
+
+    void on_btnDown_released();
+
+    void on_btnCheck_released();
+
+    void on_btnLog_released();
 
 private:
     char * new_content = (char *)malloc(666);
