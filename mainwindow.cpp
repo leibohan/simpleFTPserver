@@ -72,45 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
     QStringList headers_server;
     headers_server << tr("Title") << tr("Description");
 
-    QFile file_local(":/default.txt");
-    file_local.open(QIODevice::ReadOnly);
-    TreeModel *model_local = new TreeModel(headers_local, file_local.readAll());
-    file_local.close();
-
-    QFile file_server(":/default.txt");
-    file_server.open(QIODevice::ReadOnly);
-    TreeModel *model_server = new TreeModel(headers_local, file_server.readAll());
-    file_server.close();
-
-    /*
-    char * order = nullptr;
-    sprintf(order, "ls -l %s > %stest.txt", folder, targ);
-    system(order);
-    */
-    /*
-    view->setModel(model_local);
-    for (int column = 0; column < model_local->columnCount(); ++column)
-        view->resizeColumnToContents(column);
-
-    view_2->setModel(model_server);
-    for (int column = 0; column < model_server->columnCount(); ++column)
-        view_2->resizeColumnToContents(column);
-    */
-    connect(exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
-
-    connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, &MainWindow::updateActions);
-    /*
-    connect(actionsMenu, &QMenu::aboutToShow, this, &MainWindow::updateActions);
-    connect(insertRowAction, &QAction::triggered, this, &MainWindow::insertRow);
-    connect(insertColumnAction, &QAction::triggered, this, &MainWindow::insertColumn);
-    connect(removeRowAction, &QAction::triggered, this, &MainWindow::removeRow);
-    connect(removeColumnAction, &QAction::triggered, this, &MainWindow::removeColumn);
-    connect(insertChildAction, &QAction::triggered, this, &MainWindow::insertChild);
-    */
-    connect(insertChildAction, &QAction::triggered, this, &MainWindow::insertChild);
-
-    updateActions();
+    //updateActions();
 }
 
 void MainWindow::init()
@@ -122,6 +84,24 @@ void MainWindow::init()
     dir_input->setText("/Users/Leibohan/FTPlocal");
 
     updateLocal();
+
+    server_addr = "/";
+    server_list = ".\n..\n";
+    updateServer();
+}
+
+void MainWindow::error()
+{
+    QMessageBox::critical(0, "error", "An error has occured.");
+}
+
+void MainWindow::updateServer()
+{
+    QStringList header;
+    header << tr("filename");
+    free(view2->model());
+    TreeModel *model_server = new TreeModel(header, server_list);
+    view2->setModel(model_server);
 }
 
 void MainWindow::updateLocal(){
@@ -153,7 +133,7 @@ void MainWindow::check()
     QString foldername(view2->model()->itemData(selected).values()[0].toString());
     QModelIndex selected2 = present.sibling(present.row(),2);
     QString type(view2->model()->itemData(selected2).values()[0].toString());
-    if (type != "Folder") {
+    if (type != "Folder") { // change to File Folder in windows system or refract the method to isDir with changing the class of QModelIndex
         view2->clearSelection();
         return;
     }
@@ -188,13 +168,13 @@ void MainWindow::download() {
     QModelIndex selected = present.sibling(present.row(),0);
     QString filename(view2->model()->itemData(selected).values()[0].toString());
     QModelIndex present_ = view2->currentIndex();
-    QModelIndex selected__ = present_.sibling(present_.row(),2);
-    QString filename__(view2->model()->itemData(selected__).values()[0].toString());
+    //QModelIndex selected__ = present_.sibling(present_.row(),2);
+    //QString filename__(view2->model()->itemData(selected__).values()[0].toString());
     QString tar = dir_input->text();
 
 
     //use selected folder as the target saving address when it is a folder being selected only.
-    if (filename__ == "Folder") tar = ((QFileSystemModel)view->model()).filePath(view->currentIndex());
+    tar = ((QFileSystemModel)view->model()).filePath(view->currentIndex());
     /* 请完成 */
     //filename is the name of the file going to be downloaded; tar is the target address; we do not know current ftp server address.
     std::cout << filename.toStdString();
@@ -246,106 +226,6 @@ void MainWindow::updateConsole()
     */
     textConsole->setText(console_info);
 
-}
-
-void MainWindow::insertChild()
-{
-    QModelIndex index = view->selectionModel()->currentIndex();
-    QAbstractItemModel *model = view->model();
-
-    if (model->columnCount(index) == 0) {
-        if (!model->insertColumn(0, index))
-            return;
-    }
-
-    if (!model->insertRow(0, index))
-        return;
-
-    for (int column = 0; column < model->columnCount(index); ++column) {
-        QModelIndex child = model->index(0, column, index);
-        model->setData(child, QVariant("[No data]"), Qt::EditRole);
-        if (!model->headerData(column, Qt::Horizontal).isValid())
-            model->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
-    }
-
-    view->selectionModel()->setCurrentIndex(model->index(0, 0, index),
-                                            QItemSelectionModel::ClearAndSelect);
-    updateActions();
-}
-
-bool MainWindow::insertColumn()
-{
-    QAbstractItemModel *model = view->model();
-    int column = view->selectionModel()->currentIndex().column();
-
-    // Insert a column in the parent item.
-    bool changed = model->insertColumn(column + 1);
-    if (changed)
-        model->setHeaderData(column + 1, Qt::Horizontal, QVariant("[No header]"), Qt::EditRole);
-
-    updateActions();
-
-    return changed;
-}
-
-void MainWindow::insertRow()
-{
-    QModelIndex index = view->selectionModel()->currentIndex();
-    QAbstractItemModel *model = view->model();
-
-    if (!model->insertRow(index.row()+1, index.parent()))
-        return;
-
-    updateActions();
-
-    for (int column = 0; column < model->columnCount(index.parent()); ++column) {
-        QModelIndex child = model->index(index.row()+1, column, index.parent());
-        model->setData(child, QVariant("[No data]"), Qt::EditRole);
-    }
-}
-
-bool MainWindow::removeColumn()
-{
-    QAbstractItemModel *model = view->model();
-    int column = view->selectionModel()->currentIndex().column();
-
-    // Insert columns in each child of the parent item.
-    bool changed = model->removeColumn(column);
-
-    if (changed)
-        updateActions();
-
-    return changed;
-}
-
-void MainWindow::removeRow()
-{
-    QModelIndex index = view->selectionModel()->currentIndex();
-    QAbstractItemModel *model = view->model();
-    if (model->removeRow(index.row(), index.parent()))
-        updateActions();
-}
-
-void MainWindow::updateActions()
-{
-    bool hasSelection = !view->selectionModel()->selection().isEmpty();
-    removeRowAction->setEnabled(hasSelection);
-    removeColumnAction->setEnabled(hasSelection);
-
-    bool hasCurrent = view->selectionModel()->currentIndex().isValid();
-    insertRowAction->setEnabled(hasCurrent);
-    insertColumnAction->setEnabled(hasCurrent);
-
-    if (hasCurrent) {
-        view->closePersistentEditor(view->selectionModel()->currentIndex());
-
-        int row = view->selectionModel()->currentIndex().row();
-        int column = view->selectionModel()->currentIndex().column();
-        if (view->selectionModel()->currentIndex().parent().isValid())
-            statusBar()->showMessage(tr("Position: (%1,%2)").arg(row).arg(column));
-        else
-            statusBar()->showMessage(tr("Position: (%1,%2) in top level").arg(row).arg(column));
-    }
 }
 
 void MainWindow::on_btnUp_released()

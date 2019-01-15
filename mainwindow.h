@@ -65,21 +65,18 @@ public:
     MainWindow(QWidget *parent = 0);
 
 public slots:
-    void updateActions();
+    //void updateActions();
 
 private slots:
     void init();
-    void insertChild();
-    bool insertColumn();
-    void insertRow();
-    bool removeColumn();
-    void removeRow();
     void updateConsole();
     void check();
     void upload();
     void download();
     void updateLocal();
+    void updateServer();
     void log();
+    void error();
 
     void on_btnUp_released();
 
@@ -94,6 +91,8 @@ private:
     char * console_info = (char*)malloc(8888);
     char * console_init = console_info;
     bool login = false;
+    QString server_addr = ""; //during latest update
+    QString server_list = ""; //during latest update
 };
 
 #endif // MAINWINDOW_H
